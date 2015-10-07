@@ -1,1 +1,1 @@
-# opencl_experiments
+# OpenCL experiments
