@@ -86,7 +86,7 @@ int main()
         cl::CommandQueue queue(context, device, CL_QUEUE_PROFILING_ENABLE);
 
         // load opencl source
-        std::ifstream cl_file("../task1/vector_add.cl");
+        std::ifstream cl_file("vector_add.cl");
         std::string cl_string{std::istreambuf_iterator<char>(cl_file),
                               std::istreambuf_iterator<char>()};
 
