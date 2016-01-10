@@ -157,7 +157,7 @@ int main()
             return 0;
         }
 
-        generate_random_data(1024, 64, "input.txt");
+        // generate_random_data(1024, 64, "input.txt");
 
         // load data from file
         std::ifstream input_file("input.txt");
