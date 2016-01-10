@@ -194,14 +194,14 @@ int main()
         queue.enqueueWriteBuffer(dev_b, CL_TRUE, 0, sizeof(float) * M * M, B.data());
 
         // load named kernel from opencl source
-        auto vector_add = cl::make_kernel< cl::Buffer&
+        auto matrix_conv = cl::make_kernel< cl::Buffer&
                                          , cl::Buffer&
                                          , cl::Buffer&
                                          , int
                                          , int >(program, "matrix_conv");
         size_t const global_size = (N / block_size + ((N % block_size)?1:0)) * block_size;
         auto enqueue_args = cl::EnqueueArgs(queue, cl::NDRange(global_size, global_size), cl::NDRange(block_size, block_size));
-        vector_add(enqueue_args, dev_a, dev_b, dev_c, N, M);
+        matrix_conv(enqueue_args, dev_a, dev_b, dev_c, N, M);
         queue.enqueueReadBuffer(dev_c, CL_TRUE, 0, sizeof(float) * N * N, C.data());
 
         // CPU conv calculation check
