@@ -1,0 +1,1 @@
+/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/CMakeFiles/inclusive_scan.dir

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+   <FileVersion major="1" minor="6" />
+   <Project>
+      <Option title="inclusive_scan" />
+      <Option makefile_is_custom="1" />
+      <Option compiler="gcc" />
+      <Option virtualFolders="CMake Files\;" />
+      <Build>
+      <Target title="all">
+         <Option working_dir="/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan" />
+         <Option type="4" />
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 all" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="edit_cache">
+         <Option working_dir="/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan" />
+         <Option type="4" />
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 edit_cache" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="rebuild_cache">
+         <Option working_dir="/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan" />
+         <Option type="4" />
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 rebuild_cache" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="inclusive_scan">
+         <Option output="/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/inclusive_scan" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan" />
+         <Option object_output="./" />
+         <Option type="1" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/usr/include" />
+            <Add directory="/usr/lib/gcc/x86_64-unknown-linux-gnu/5.3.0/../../../../include/c++/5.3.0" />
+            <Add directory="/usr/lib/gcc/x86_64-unknown-linux-gnu/5.3.0/../../../../include/c++/5.3.0/backward" />
+            <Add directory="/usr/lib/gcc/x86_64-unknown-linux-gnu/5.3.0/../../../../include/c++/5.3.0/x86_64-unknown-linux-gnu" />
+            <Add directory="/usr/lib/gcc/x86_64-unknown-linux-gnu/5.3.0/include" />
+            <Add directory="/usr/lib/gcc/x86_64-unknown-linux-gnu/5.3.0/include-fixed" />
+            <Add directory="/usr/local/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 inclusive_scan" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="inclusive_scan/fast">
+         <Option output="/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/inclusive_scan" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan" />
+         <Option object_output="./" />
+         <Option type="1" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/usr/include" />
+            <Add directory="/usr/lib/gcc/x86_64-unknown-linux-gnu/5.3.0/../../../../include/c++/5.3.0" />
+            <Add directory="/usr/lib/gcc/x86_64-unknown-linux-gnu/5.3.0/../../../../include/c++/5.3.0/backward" />
+            <Add directory="/usr/lib/gcc/x86_64-unknown-linux-gnu/5.3.0/../../../../include/c++/5.3.0/x86_64-unknown-linux-gnu" />
+            <Add directory="/usr/lib/gcc/x86_64-unknown-linux-gnu/5.3.0/include" />
+            <Add directory="/usr/lib/gcc/x86_64-unknown-linux-gnu/5.3.0/include-fixed" />
+            <Add directory="/usr/local/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 inclusive_scan/fast" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      </Build>
+      <Unit filename="/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/main.cpp">
+         <Option target="inclusive_scan"/>
+      </Unit>
+      <Unit filename="/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/CMakeLists.txt">
+          <Option virtualFolder="CMake Files\" />
+      </Unit>
+      <Unit filename="/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/FindOPENCL.cmake">
+          <Option virtualFolder="CMake Files\" />
+      </Unit>
+   </Project>
+</CodeBlocks_project_file>

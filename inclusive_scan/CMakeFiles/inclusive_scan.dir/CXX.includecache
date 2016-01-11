@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/main.cpp
+CL/cl.hpp
+/home/pavel/AU/ParallelComputing/openCL/opencl_experiments/inclusive_scan/CL/cl.hpp
+iostream
+-
+fstream
+-
+vector
+-
+string
+-
+iterator
+-
+iomanip
+-
+random
+-
+chrono
+-
+algorithm
+-
+

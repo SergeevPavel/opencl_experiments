@@ -1,0 +1,1 @@
+/usr/bin/c++    -std=c++11 -g   CMakeFiles/inclusive_scan.dir/main.cpp.o  -o inclusive_scan -rdynamic -lOpenCL 
