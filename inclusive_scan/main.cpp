@@ -119,15 +119,16 @@ std::pair<cl::Buffer, cl::Buffer> subblock_scan(cl::Buffer input, size_t input_s
             , cl::Buffer&
             , cl::Buffer&
             , cl::LocalSpaceArg
-            , cl::LocalSpaceArg >(program, "subblock_scan");
-
-    size_t blocks_count = input_size / block_size;
+            , cl::LocalSpaceArg
+            , unsigned int >(program, "subblock_scan");
+    size_t const global_size = (input_size / block_size + ((input_size % block_size)?1:0)) * block_size;
+    size_t const blocks_count = global_size / block_size;
     cl::Buffer output(context, CL_MEM_READ_WRITE, sizeof(float) * input_size);
     cl::Buffer last_elements(context, CL_MEM_READ_WRITE, sizeof(float) * blocks_count);
 
-    cl::EnqueueArgs enqueue_args = cl::EnqueueArgs(queue, cl::NDRange(input_size), cl::NDRange(block_size));
+    cl::EnqueueArgs enqueue_args = cl::EnqueueArgs(queue, cl::NDRange(global_size), cl::NDRange(block_size));
     cl::Event event = kernel(enqueue_args, input, output, last_elements,
-                             cl::Local(sizeof(float) * input_size), cl::Local(sizeof(float) * input_size));
+                             cl::Local(sizeof(float) * input_size), cl::Local(sizeof(float) * input_size), input_size);
     event.wait();
     return std::make_pair(output, last_elements);
 }
@@ -136,12 +137,15 @@ cl::Buffer merge(cl::Buffer input, cl::Buffer additions, size_t input_size)
 {
     auto kernel = cl::make_kernel< cl::Buffer&
             , cl::Buffer&
-            , cl::Buffer& >(program, "merge");
+            , cl::Buffer&
+            , unsigned int >(program, "merge");
 
     cl::Buffer output(context, CL_MEM_READ_WRITE, sizeof(float) * input_size);
 
-    cl::EnqueueArgs enqueue_args = cl::EnqueueArgs(queue, cl::NDRange(input_size), cl::NDRange(block_size));
-    cl::Event event = kernel(enqueue_args, input, output, additions);
+    size_t const global_size = (input_size / block_size + ((input_size % block_size)?1:0)) * block_size;
+
+    cl::EnqueueArgs enqueue_args = cl::EnqueueArgs(queue, cl::NDRange(global_size), cl::NDRange(block_size));
+    cl::Event event = kernel(enqueue_args, input, output, additions, input_size);
     event.wait();
     return output;
 }
@@ -194,14 +198,21 @@ int main()
         try {
             program.build(devices);
 
-            size_t const input_size = 8 * 8 * 8;
+            size_t input_size;
+            std::ifstream input_file("input.txt");
+            input_file >> input_size;
 
             std::vector<float> input(input_size);
-            std::vector<float> output(input_size, 0);
-            for (size_t i = 0; i < input_size; ++i)
-            {
-                input[i] = i % 10;
+
+//            for (size_t i = 0; i < input_size; ++i) {
+//                input[i] = i % 10;
+//            }
+
+            for (int i = 0; i < input_size; i++) {
+                input_file >> input[i];
             }
+
+            std::vector<float> output(input_size, 0);
 
             cl::Buffer dev_input (context, CL_MEM_READ_ONLY, sizeof(float) * input_size);
             queue.enqueueWriteBuffer(dev_input, CL_TRUE, 0, sizeof(float) * input_size, &input[0]);
@@ -212,6 +223,11 @@ int main()
             queue.finish();
 
             cpu_check(input, output);
+
+            std::ofstream output_file("output.txt");
+            for (int i = 0; i < input_size; i++) {
+                output_file << output[i] << " ";
+            }
 
         }
         catch (cl::Error const & e) {
