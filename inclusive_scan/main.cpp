@@ -91,7 +91,7 @@ void cpu_check(std::vector<float> input, std::vector<float> output)
     }
 }
 
-size_t const block_size = 64;
+size_t const block_size = 256;
 cl::Program program;
 cl::Context context;
 cl::CommandQueue queue;
