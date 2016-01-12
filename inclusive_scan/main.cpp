@@ -10,6 +10,7 @@
 #include <random>
 #include <chrono>
 #include <algorithm>
+#include <stdexcept>
 
 cl::Platform selectPlatform()
 {
@@ -33,7 +34,7 @@ cl::Platform selectPlatform()
         ++i;
     }
     std::cout << "Select platform: ";
-//    std::cin >> i;
+    //    std::cin >> i;
     i = 1;
     return platforms[i];
 }
@@ -66,12 +67,13 @@ cl::Device selectDevice(std::vector<cl::Device> const& devices)
         ++i;
     }
     std::cout << "Select device: ";
-//    std::cin >> i;
+    //    std::cin >> i;
     i = 0;
     return devices[i];
 }
 
-std::vector<float> cpu_inclusive_scan(std::vector<float> const& input) {
+std::vector<float> cpu_inclusive_scan(std::vector<float> const& input)
+{
     std::vector<float> output(input);
     for (int i = 1; i < output.size(); i++) {
         output[i] += output[i - 1];
@@ -89,8 +91,72 @@ void cpu_check(std::vector<float> input, std::vector<float> output)
     }
 }
 
-void subblock_scan()
+size_t const block_size = 8;
+cl::Program program;
+cl::Context context;
+cl::CommandQueue queue;
+
+cl::Buffer small_array_scan(cl::Buffer input, size_t input_size)
 {
+    if (input_size > block_size) throw std::invalid_argument("input too big");
+
+    auto kernel = cl::make_kernel< cl::Buffer&
+            , cl::Buffer&
+            , cl::LocalSpaceArg
+            , cl::LocalSpaceArg >(program, "small_array_scan");
+
+    cl::Buffer output(context, CL_MEM_READ_WRITE, sizeof(float) * input_size);
+    auto enqueue_args = cl::EnqueueArgs(queue, cl::NDRange(input_size), cl::NDRange(input_size));
+    cl::Event event = kernel(enqueue_args, input, output,
+                             cl::Local(sizeof(float) * input_size), cl::Local(sizeof(float) * input_size));
+    event.wait();
+    return output;
+}
+
+std::pair<cl::Buffer, cl::Buffer> subblock_scan(cl::Buffer input, size_t input_size)
+{
+    auto kernel = cl::make_kernel< cl::Buffer&
+            , cl::Buffer&
+            , cl::Buffer&
+            , cl::LocalSpaceArg
+            , cl::LocalSpaceArg >(program, "subblock_scan");
+
+    size_t blocks_count = input_size / block_size;
+    cl::Buffer output(context, CL_MEM_READ_WRITE, sizeof(float) * input_size);
+    cl::Buffer last_elements(context, CL_MEM_READ_WRITE, sizeof(float) * blocks_count);
+
+    cl::EnqueueArgs enqueue_args = cl::EnqueueArgs(queue, cl::NDRange(input_size), cl::NDRange(block_size));
+    cl::Event event = kernel(enqueue_args, input, output, last_elements,
+                             cl::Local(sizeof(float) * input_size), cl::Local(sizeof(float) * input_size));
+    event.wait();
+    return std::make_pair(output, last_elements);
+}
+
+cl::Buffer merge(cl::Buffer input, cl::Buffer additions, size_t input_size)
+{
+    auto kernel = cl::make_kernel< cl::Buffer&
+            , cl::Buffer&
+            , cl::Buffer& >(program, "merge");
+
+    cl::Buffer output(context, CL_MEM_READ_WRITE, sizeof(float) * input_size);
+
+    cl::EnqueueArgs enqueue_args = cl::EnqueueArgs(queue, cl::NDRange(input_size), cl::NDRange(block_size));
+    cl::Event event = kernel(enqueue_args, input, output, additions);
+    event.wait();
+    return output;
+}
+
+cl::Buffer inclusive_scan(cl::Buffer input, size_t input_size)
+{
+    if (block_size >= input_size) {
+        return small_array_scan(input, input_size);
+    } else {
+        cl::Buffer subblocks;
+        cl::Buffer last_elements;
+        std::tie(subblocks, last_elements) = subblock_scan(input, input_size);
+        cl::Buffer last_elements_scaned = inclusive_scan(last_elements, input_size / block_size);
+        return merge(subblocks, last_elements_scaned, input_size);
+    }
 }
 
 int main()
@@ -106,49 +172,29 @@ int main()
         cl::Device device = selectDevice(devices);
 
         // create context
-        cl::Context context(devices);
+        context = cl::Context(devices);
 
         // create command queue
-        cl::CommandQueue queue(context, device, CL_QUEUE_PROFILING_ENABLE);
+        queue = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE);
 
         // load opencl source
         std::ifstream cl_file("inclusive_scan.cl");
 
         std::string cl_string{std::istreambuf_iterator<char>(cl_file),
-                              std::istreambuf_iterator<char>()};
+                    std::istreambuf_iterator<char>()};
 
         cl::Program::Sources source(1,
                                     std::make_pair(cl_string.c_str(),
                                                    cl_string.length() + 1));
 
         // create programm
-        cl::Program program(context, source);
+        program = cl::Program(context, source);
 
         // compile opencl source
-        try
-        {
+        try {
             program.build(devices);
 
-            // load named kernel from opencl source
-            auto subblock_scan = cl::make_kernel< cl::Buffer&
-                                                , cl::Buffer&
-                                                , cl::Buffer&
-                                                , cl::LocalSpaceArg
-                                                , cl::LocalSpaceArg >(program, "subblock_scan");
-
-            auto small_array_scan = cl::make_kernel< cl::Buffer&
-                                                   , cl::Buffer&
-                                                   , cl::LocalSpaceArg
-                                                   , cl::LocalSpaceArg >(program, "small_array_scan");
-
-            auto merge = cl::make_kernel< cl::Buffer&
-                                        , cl::Buffer&
-                                        , cl::Buffer& >(program, "merge");
-
-
-            // create a message to send to kernel
-            size_t const block_size = 64;
-            size_t const input_size = 64 * 64;
+            size_t const input_size = 8 * 8 * 8;
 
             std::vector<float> input(input_size);
             std::vector<float> output(input_size, 0);
@@ -160,48 +206,15 @@ int main()
             cl::Buffer dev_input (context, CL_MEM_READ_ONLY, sizeof(float) * input_size);
             queue.enqueueWriteBuffer(dev_input, CL_TRUE, 0, sizeof(float) * input_size, &input[0]);
 
-            if (block_size >= input_size) {
-                cl::Buffer dev_output(context, CL_MEM_WRITE_ONLY, sizeof(float) * input_size);
-                auto enqueue_args = cl::EnqueueArgs(queue, cl::NDRange(input_size), cl::NDRange(input_size));
-                cl::Event event = small_array_scan(enqueue_args, dev_input, dev_output,
-                                                   cl::Local(sizeof(float) * input_size),
-                                                   cl::Local(sizeof(float) * input_size));
-                event.wait();
-                queue.enqueueReadBuffer(dev_output, CL_TRUE, 0, sizeof(float) * input_size, &output[0]);
-                queue.finish();
-            } else {
-                cl::Buffer subblock_output(context, CL_MEM_READ_WRITE, sizeof(float) * input_size);
-                const size_t blocks_count = input_size / block_size;
-                cl::Buffer last_elements(context, CL_MEM_READ_WRITE, sizeof(float) * blocks_count);
-                auto subblock_scan_enqueue_args = cl::EnqueueArgs(queue, cl::NDRange(input_size), cl::NDRange(block_size));
-                cl::Event event_subblock_scan = subblock_scan(subblock_scan_enqueue_args, dev_input, subblock_output, last_elements,
-                                                   cl::Local(sizeof(float) * input_size),
-                                                   cl::Local(sizeof(float) * input_size));
-                event_subblock_scan.wait();
+            cl::Buffer dev_output = inclusive_scan(dev_input, input_size);
 
-
-                cl::Buffer last_elements_scan(context, CL_MEM_READ_WRITE, sizeof(float) * blocks_count);
-                auto small_array_scan_enqueue_args = cl::EnqueueArgs(queue, cl::NDRange(blocks_count), cl::NDRange(blocks_count));
-                cl::Event event_small_array_scan = small_array_scan(small_array_scan_enqueue_args, last_elements, last_elements_scan,
-                                                   cl::Local(sizeof(float) * blocks_count),
-                                                   cl::Local(sizeof(float) * blocks_count));
-                event_small_array_scan.wait();
-
-                cl::Buffer dev_output(context, CL_MEM_WRITE_ONLY, sizeof(float) * input_size);
-
-                auto merge_enqueue_args = cl::EnqueueArgs(queue, cl::NDRange(input_size), cl::NDRange(block_size));
-                cl::Event event_merge = merge(merge_enqueue_args, subblock_output, dev_output, last_elements_scan);
-                event_merge.wait();
-
-                queue.enqueueReadBuffer(dev_output, CL_TRUE, 0, sizeof(float) * input_size, &output[0]);
-                queue.finish();
-            }
+            queue.enqueueReadBuffer(dev_output, CL_TRUE, 0, sizeof(float) * input_size, &output[0]);
+            queue.finish();
 
             cpu_check(input, output);
 
         }
-        catch (cl::Error const & e)
-        {
+        catch (cl::Error const & e) {
             std::string log_str = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device);
             std::cout << std::endl << e.what() << " : " << e.err() << std::endl;
             std::cout << log_str;
